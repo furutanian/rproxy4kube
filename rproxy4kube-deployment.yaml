@@ -1,0 +1,42 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.7.0 (HEAD)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: rproxy4kube
+  name: rproxy4kube
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: rproxy4kube
+    spec:
+      containers:
+      - args:
+        - bash
+        - -c
+        - bash startup.sh && /sbin/init
+        image: docker.io/furutanian/rproxy4kube
+        name: rproxy4kube-alpha
+        ports:
+        - containerPort: 80
+        - containerPort: 443
+        resources: {}
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /root/rproxy4kube
+          name: pv
+      restartPolicy: Always
+      volumes:
+      - name: pv
+        hostPath:
+          path: /root/kube/rproxy4kube/pv
+status: {}
